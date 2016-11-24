@@ -1,0 +1,40 @@
+#!/bin/sh
+# sssss - screen saver stopper shell script
+# is written by Jens Korte and may be redistributed under the terms of the AGPL 3
+
+# TODO: auto check for installed screensaver, random start or only 1
+# TODO: list all installed (and missing) screensaver
+# TODO: maybe use setterm
+# TODO: link to AGPL 3 (or include compressed version, add deps)
+# TODO: research: do some ss not need reset, support -HUP, support timeout?
+
+TIMEOUT=5 # how long will the screensaver run? e.g. 42s, 5m, 1h. See man sleep for syntax.
+PRG="cmatrix -b"
+
+VERSION=0.01 # Don't change this until you know, what you are doing
+
+case "$1" in
+  "-h"|"--help"|"--version")
+    echo
+    echo " This is  sssss  version: $VERSION"
+    echo
+    echo The screen saver stopper shell script saves some spare \'sources. 
+    echo "It (starts and) kills a console screensaver to stop the cpu from working."
+    echo
+    echo 1. Copy this script to your \~/bin 
+    echo 2. Make sure \~/bin is part of your \$PATH
+    echo
+    echo 3. Use this script in your \~/.screenrc:
+    echo "  idle 1m"
+    echo "  blankerprg sssss"
+    echo
+    echo 4. start screen
+    echo
+    echo dependecies needed: cmatrix, screen
+    exit   
+  ;;
+esac
+$PRG &
+SSPID=$!
+(sleep $TIMEOUT && kill $SSPID 2>/dev/null)
+reset
