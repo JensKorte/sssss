@@ -5,7 +5,6 @@
 # TODO: auto check for installed screensaver, random start or only 1
 # TODO: list all installed (and missing) screensaver
 # TODO: maybe use setterm
-# TODO: link to AGPL 3 (or include compressed version, add deps)
 # TODO: research: do some ss not need reset, support -HUP, support timeout?
 
 TIMEOUT=5 # how long will the screensaver run? e.g. 42s, 5m, 1h. See man sleep for syntax.
