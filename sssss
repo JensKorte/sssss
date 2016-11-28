@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # sssss - screen saver stopper shell script
 # is written by Jens Korte and may be redistributed under the terms of the AGPL 3
 
@@ -6,21 +6,43 @@
 # TODO: list all installed (and missing) screensaver
 # TODO: maybe use setterm
 # TODO: research: do some ss not need reset, support -HUP, support timeout?
+# TODO: gdc supports timeout
 
-TIMEOUT=5 # how long will the screensaver run? e.g. 42s, 5m, 1h. See man sleep for syntax.
-PRG="cmatrix -b"
+PRG="cmatrix" # which screensaver to start
+TIMEOUT=30 # how long will the screensaver run? e.g. 42 (seconds), 5m, 1h. See man s
+leep for syntax.
 
-VERSION=0.01 # Don't change this until you know, what you are doing
+# List of Programms and how they are started
+# broken: xaos
+PROGRAMS="aafire asciiquarium cacafire cmatrix"
+declare -A PRG_CALL
+PRG_CALL[aafire]="aafire -driver curses -dim -bold -reverse -extended"
+PRG_CALL[asciiquarium]="asciiquarium"
+PRG_CALL[cacaclock]="cacaclock -d %R:%S" # see man strftime for details
+PRG_CALL[cacafire]="cacafire"
+PRG_CALL[cmatrix]="cmatrix -b -u9"
+#PRG_CALL[xaos]="xaos -dim -bold -normal -autopilot"
+
+VERSION=0.10
+CALL=${PRG_CALL[$PRG]}
 
 case "$1" in
-  "-h"|"--help"|"--version")
+  "-h"|"--help")
     echo
     echo " This is  sssss  version: $VERSION"
     echo
-    echo The screen saver stopper shell script saves some spare \'sources. 
+    echo The screen saver stopper shell script saves some spare \'sources.
     echo "It (starts and) kills a console screensaver to stop the cpu from working."
     echo
-    echo 1. Copy this script to your \~/bin 
+    echo " SUPPORTED PARAMETERS"
+    echo
+    echo "-h|--help   shows this help"
+    echo "--version   shows version"
+    echo "-l|--list   lists the supported and installed screensavers"
+    echo
+    echo " HOW TO INSTALL/CONFIGURE"
+    echo
+    echo 1. Copy this script to your \~/bin
     echo 2. Make sure \~/bin is part of your \$PATH
     echo
     echo 3. Use this script in your \~/.screenrc:
@@ -29,11 +51,34 @@ case "$1" in
     echo
     echo 4. start screen
     echo
-    echo dependecies needed: cmatrix, screen
-    exit   
+    echo DEPENDENCIES
+    echo "needed:   bash, screen"
+    echo optional: $PROGRAMS
+    exit
+  ;;
+  "--version")
+    echo
+    echo " This is  sssss  version: $VERSION"
+    echo
+    exit
+  ;;
+  "-l"|"--list")
+    echo
+    echo Screensaver installed and supported by version $VERSION of sssss:
+    echo
+    echo -n "Found: "
+    for s in $PROGRAMS;do which $s 2>&1 1>/dev/null && echo -n "$s ";done
+    echo
+    echo
+    echo -n "Not found: "
+    for s in $PROGRAMS;do which $s 2>&1 1>/dev/null || echo -n "$s ";done
+    echo
+    echo
+    exit
   ;;
 esac
-$PRG &
+unset DISPLAY #get cacaclock, cacafire, xaos in current terminal, not extra (x)term
+$CALL &
 SSPID=$!
-(sleep $TIMEOUT && kill $SSPID 2>/dev/null)
+sleep $TIMEOUT && kill $SSPID 2>&1 2>/dev/null
 reset
